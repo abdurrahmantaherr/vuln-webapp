@@ -17,3 +17,6 @@ dependencies = [
 dev = [
     "pytest"
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/app"]

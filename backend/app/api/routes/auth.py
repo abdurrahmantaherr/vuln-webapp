@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from ..services.auth_service import signup, login
-from ..db.session import get_db
+from app.services.auth_service import signup, login
+from app.db.session import get_db
 import os
 
+# Get project root directory for template paths
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+frontend_templates_dir = os.path.join(project_root, "frontend", "templates")
+print(f"DEBUG: project_root = {project_root}")
+print(f"DEBUG: frontend_templates_dir = {frontend_templates_dir}")
+
 router = APIRouter()
-templates = Jinja2Templates(directory="frontend/templates")
 
 @router.get("/")
 async def index():
@@ -16,7 +20,7 @@ async def index():
 @router.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
     """Serve signup form by reading template from disk"""
-    with open("frontend/templates/signup.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(frontend_templates_dir, "signup.html"), "r", encoding="utf-8") as f:
         content = f.read()
     return HTMLResponse(content=content)
 
@@ -29,7 +33,7 @@ async def signup_post(request: Request, username: str = Form(...), email: str = 
         return result
     else:
         # Return error message in HTML response by reading template and replacing error placeholder
-        with open("frontend/templates/signup.html", "r", encoding="utf-8") as f:
+        with open(os.path.join(frontend_templates_dir, "signup.html"), "r", encoding="utf-8") as f:
             content = f.read()
         # Simple error injection - in a real app we'd use proper templating
         error_html = f'''
@@ -44,7 +48,8 @@ async def signup_post(request: Request, username: str = Form(...), email: str = 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """Serve login form by reading template from disk"""
-    with open("frontend/templates/login.html", "r", encoding="utf-8") as f:
+    frontend_templates_dir = os.path.join(backend_dir, "frontend", "templates")
+    with open(os.path.join(frontend_templates_dir, "login.html"), "r", encoding="utf-8") as f:
         content = f.read()
     return HTMLResponse(content=content)
 
@@ -73,7 +78,8 @@ async def welcome_page(request: Request):
     username = request.session.get("username", "User")
 
     # Load dashboard template and perform string substitution
-    with open("frontend/templates/dashboard.html", "r", encoding="utf-8") as f:
+    frontend_templates_dir = os.path.join(backend_dir, "frontend", "templates")
+    with open(os.path.join(frontend_templates_dir, "dashboard.html"), "r", encoding="utf-8") as f:
         content = f.read()
 
     # Replace {{username}} placeholder with actual username
