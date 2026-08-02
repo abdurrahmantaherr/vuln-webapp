@@ -1,3 +1,5 @@
+import sqlite3
+import json
 from fastapi import Form
 from fastapi.responses import RedirectResponse, JSONResponse
 from ..db.session import get_db
@@ -20,7 +22,10 @@ def signup(username: str = Form(...), email: str = Form(...), password: str = Fo
         conn.execute(query)
         conn.commit()
         conn.close()
-        return RedirectResponse(url="/login", status_code=303)
+        return {
+            "success": True,
+            "redirect": "/login"
+        }
     except sqlite3.IntegrityError:
         # Handle UNIQUE constraint error for username
         return JSONResponse(content={"error": "Username already exists"}, status_code=409)

@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from app.services.auth_service import signup, login
 from app.db.session import get_db
 import os
+import json
 
 # Get project root directory for template paths
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -29,16 +30,23 @@ async def signup_post(request: Request, username: str = Form(...), email: str = 
     """Process user registration"""
     result = signup(username, email, password)
 
-    if isinstance(result, RedirectResponse):
-        return result
+    if isinstance(result, dict) and result.get("success"):
+        return RedirectResponse(url=result["redirect"], status_code=303)
     else:
-        # Return error message in HTML response by reading template and replacing error placeholder
+        # Handle error: result is a JSONResponse
+        # Extract the error message from the JSONResponse's body
+        try:
+            # We assume the response is application/json and contains an "error" key
+            error_data = json.loads(result.body.decode())
+            error_msg = error_data.get("error", "Registration failed")
+        except:
+            error_msg = "Registration failed"
+        # Then we need to inject this error_msg into the template.
         with open(os.path.join(frontend_templates_dir, "signup.html"), "r", encoding="utf-8") as f:
             content = f.read()
-        # Simple error injection - in a real app we'd use proper templating
         error_html = f'''
         <div class="error-message" style="display: block; margin-bottom: 16px; padding: 12px; background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 8px;">
-            {result.get("error", "Registration failed")}
+            {error_msg}
         </div>
         '''
         # Insert error after the form container opening tag
@@ -48,7 +56,6 @@ async def signup_post(request: Request, username: str = Form(...), email: str = 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """Serve login form by reading template from disk"""
-    frontend_templates_dir = os.path.join(backend_dir, "frontend", "templates")
     with open(os.path.join(frontend_templates_dir, "login.html"), "r", encoding="utf-8") as f:
         content = f.read()
     return HTMLResponse(content=content)
@@ -58,14 +65,25 @@ async def login_post(request: Request, username: str = Form(...), password: str 
     """Process user login - returns JSONResponse for AJAX handling"""
     result = login(username, password)
 
+    # Handle successful login (returns dict)
     if isinstance(result, dict) and result.get("success"):
+        # Set session variables
+        request.session["user_id"] = result["user_id"]
+        request.session["username"] = result["username"]
+        request.session["email"] = result["email"]
         # Return JSON response for client-side handling
         return JSONResponse(content={
             "success": True,
             "redirect": result["redirect"]
         })
+
+    # Handle error cases (returns JSONResponse)
+    elif hasattr(result, 'status_code'):  # It's a Response object (JSONResponse)
+        return JSONResponse(content={"error": "Login failed"}, status_code=result.status_code)
+
+    # Fallback for any other unexpected return type
     else:
-        return JSONResponse(content={"error": result.get("error", "Invalid credentials")}, status_code=401)
+        return JSONResponse(content={"error": "Authentication error"}, status_code=401)
 
 @router.get("/welcome", response_class=HTMLResponse)
 async def welcome_page(request: Request):
@@ -78,7 +96,6 @@ async def welcome_page(request: Request):
     username = request.session.get("username", "User")
 
     # Load dashboard template and perform string substitution
-    frontend_templates_dir = os.path.join(backend_dir, "frontend", "templates")
     with open(os.path.join(frontend_templates_dir, "dashboard.html"), "r", encoding="utf-8") as f:
         content = f.read()
 
