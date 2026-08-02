@@ -57,6 +57,9 @@ async def startup_event():
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 3001))
+    host = os.getenv("HOST", "127.0.0.1")
     print(f"DEBUG: PORT environment variable = {os.getenv('PORT')}")
+    print(f"DEBUG: HOST environment variable = {os.getenv('HOST')}")
+    print(f"DEBUG: Calculated host = {host}")
     print(f"DEBUG: Calculated port = {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)
