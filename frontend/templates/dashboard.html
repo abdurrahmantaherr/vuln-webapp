@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Vulnerable Web Application</title>
+    <!-- Pre-paint theme application script (blocks parsing, runs before stylesheet) -->
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem("theme");
+                if (theme === "light" || theme === "dark") {
+                    document.documentElement.dataset.theme = theme;
+                } else {
+                    document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                }
+            } catch (e) {
+                // localStorage unavailable or error; fall back to prefers-color-scheme
+                document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
@@ -16,6 +32,9 @@
                 <img src="/static/images/blue-logo-scl2.png" alt="Excaliat Logo" class="logo">
                 <img src="/static/images/excaliat-logo.png" alt="FCCU Logo" class="logo">
             </div>
+            <button id="theme-toggle" type="button" class="theme-toggle-btn" aria-label="Switch to dark mode">
+                <!-- Toggle button - can contain icon or text -->
+            </button>
         </div>
     </header>
 
@@ -125,5 +144,40 @@
             </div>
         </section>
     </main>
+    <script>
+        // Theme toggle functionality
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        if (themeToggleBtn) {
+            // Set initial aria-label based on current theme
+            const updateAriaLabel = () => {
+                const currentTheme = document.documentElement.dataset.theme;
+                themeToggleBtn.setAttribute('aria-label',
+                    currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            };
+
+            // Initialize aria-label on load
+            updateAriaLabel();
+
+            // Toggle theme on button click
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.dataset.theme;
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                // Update html attribute
+                document.documentElement.dataset.theme = newTheme;
+
+                // Persist to localStorage (with error handling for privacy modes)
+                try {
+                    localStorage.setItem('theme', newTheme);
+                } catch (e) {
+                    // localStorage unavailable; theme still works for current session
+                }
+
+                // Update aria-label for next action
+                updateAriaLabel();
+            });
+        }
+    </script>
 </body>
 </html>
