@@ -3,7 +3,7 @@ import json
 from fastapi import Form
 from fastapi.responses import RedirectResponse, JSONResponse
 from ..db.session import get_db
-from ..core.security import hash_password
+from ..core.security import hash_password, verify_password
 
 def signup(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     """Handle user registration with SQL injection vulnerability"""
