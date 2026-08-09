@@ -38,17 +38,14 @@ def login(username: str = Form(...), password: str = Form(...)):
     if not username or not password:
         return JSONResponse(content={"error": "Username and password are required"}, status_code=400)
 
-    # Hash password with MD5 without salt
-    hashed_password = hash_password(password)
-
-    # Build SELECT query via STRING CONCATENATION (vulnerability #1)
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{hashed_password}'"
+    # Build SELECT query via STRING CONCATENATION (vulnerability #1) - only username, password checked in Python
+    query = f"SELECT * FROM users WHERE username = '{username}'"
 
     conn = get_db()
     result = conn.execute(query).fetchone()
     conn.close()
 
-    if result:
+    if result and verify_password(password, result["password"]):
         # Set session variables (will be handled in route)
         return {
             "success": True,
