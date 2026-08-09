@@ -24,7 +24,7 @@ The application is a simple web app with user authentication (signup/login) and 
 2. **Stored XSS** - Unescaped username displayed on dashboard
 3. **Reflected XSS** - Unescaped query parameter in search endpoint
 4. **Session Hijacking** - Hardcoded weak secret key for session signing
-5. **Weak Password Storage** - MD5 hashing without salt
+5. **Weak Password Storage** - **FIXED**: Now uses bcrypt with work factor >= 12 (previously MD5 without salt)
 6. **Exposed Database** - Unauthenticated `/download/db` endpoint
 7. **No Rate Limiting** - Absent on all endpoints
 8. **CSRF** - Missing token validation on all forms
@@ -115,9 +115,10 @@ Once the application is running, try these exercises to identify and exploit the
 - **Weak secret**: The application uses `super-secret-key-12345` for signing
 - **Exercise**: Create a session cookie for another user without knowing their password
 
-### 5. Weak Password Storage
-- **Examine the database** (see below) to see passwords stored as unsalted MD5 hashes
-- **Exercise**: Crack MD5 hashes using rainbow tables or brute force
+### 5. Weak Password Storage (FIXED)
+- **Note**: This vulnerability has been fixed - passwords are now hashed using bcrypt with work factor >= 12
+- **Examine the database** (see below) to see passwords stored as secure bcrypt hashes
+- **Exercise**: Attempt to verify that legacy MD5 hashes no longer work and that new bcrypt hashes are secure
 
 ### 6. Exposed Database
 - Visit: `http://localhost:3001/download/db` to download the SQLite database without authentication
@@ -157,7 +158,7 @@ vuln-webapp/
 │   │   │   └── routes/
 │   │   │       └── auth.py      # Authentication routes (login/signup/dashboard/search/db download)
 │   │   ├── core/
-│   │   │   └── security.py      # Password hashing (MD5 - intentional vulnerability)
+│   │   │   └── security.py      # Password hashing (bcrypt with work factor >= 12 - fixed vulnerability)
 │   │   ├── db/
 │   │   │   └── session.py       # Database connection and initialization
 │   │   └── services/

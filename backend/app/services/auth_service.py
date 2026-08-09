@@ -3,7 +3,7 @@ import json
 from fastapi import Form
 from fastapi.responses import RedirectResponse, JSONResponse
 from ..db.session import get_db
-from ..core.security import hash_password
+from ..core.security import hash_password, verify_password
 
 def signup(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     """Handle user registration with SQL injection vulnerability"""
@@ -38,17 +38,14 @@ def login(username: str = Form(...), password: str = Form(...)):
     if not username or not password:
         return JSONResponse(content={"error": "Username and password are required"}, status_code=400)
 
-    # Hash password with MD5 without salt
-    hashed_password = hash_password(password)
-
-    # Build SELECT query via STRING CONCATENATION (vulnerability #1)
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{hashed_password}'"
+    # Build SELECT query via STRING CONCATENATION (vulnerability #1) - only username, password checked in Python
+    query = f"SELECT * FROM users WHERE username = '{username}'"
 
     conn = get_db()
     result = conn.execute(query).fetchone()
     conn.close()
 
-    if result:
+    if result and verify_password(password, result["password"]):
         # Set session variables (will be handled in route)
         return {
             "success": True,
