@@ -8,7 +8,7 @@ This is an intentionally vulnerable web application designed for security educat
 2. **Stored XSS** - Unescaped username displayed on dashboard
 3. **Reflected XSS** - Unescaped query parameter in search endpoint
 4. **Session Hijacking** - Hardcoded weak secret key for session signing
-5. **Weak Password Storage** - MD5 hashing without salt
+5. **Weak Password Storage** - **FIXED**: Now uses bcrypt with work factor >= 12 (previously MD5 without salt)
 6. **Exposed Database** - Unauthenticated `/download/db` endpoint
 7. **No Rate Limiting** - Absent on all endpoints
 8. **CSRF** - Missing token validation on all forms
