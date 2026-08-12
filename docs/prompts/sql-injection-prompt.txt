@@ -1,0 +1,45 @@
+You are working in the cloned `vuln-web-app` repository (the v0.1.0 base release).
+
+READ first, to ground the spec in the real code and house style:
+- .claude/specs/app-foundation.md     (study its section structure and style)
+- backend/app/core/security.py
+- backend/app/services/auth_service.py   (focus on login() and signup())
+- backend/pyproject.toml
+- pyproject.toml                          (root)
+
+Then CREATE EXACTLY ONE file and nothing else: .claude/specs/bcrypt-password-hashing.md
+Do NOT write any source code, plan file, or modify any existing file.
+
+The spec MUST follow the same documentation style as .claude/specs/app-foundation.md
+and contain these sections, in order:
+  - Title and one-paragraph Overview / Purpose
+  - Scope & Non-Goals (state which of the 8 lab vulnerabilities are IN scope and
+    which intentionally remain unfixed)
+  - Affected Files (exact repository paths)
+  - Functional Requirements (FR-XX), Non-Functional Requirements (NFR-XX)
+  - Success Paths (SP-XX), Edge Cases (EC-XX), Acceptance Criteria (AC-XX)
+  - Test Cases (table: ID | Scenario | Precondition | Expected Result)
+  - Verification Steps (exact commands and URLs)
+
+Fix content:
+Fix content:
+Replace all SQL queries in backend/app/services/auth_service.py that directly
+interpolate or concatenate user-controlled input with parameterized/bound
+queries. User-controlled values such as username and password MUST never be
+embedded directly into SQL.
+
+Preserve existing login() and signup() behavior and function interfaces. Do NOT
+change password hashing or fix any other lab vulnerability. Use the repository's
+existing database mechanism; no new dependency is required.
+
+If any SQL identifier (e.g., a dynamic column name) cannot use a bound parameter,
+it MUST be restricted to a fixed server-side allowlist.
+
+Include attack/edge tests showing that SQL injection payloads such as
+' OR '1'='1 and ' UNION SELECT ... cannot bypass authentication, expose
+unintended records, or alter query execution, while valid login/signup behavior
+continues to work.
+
+Closes the SQL injection vulnerability only. Do NOT modify the bcrypt task (#5).
+
+Output only that one spec file. Confirm the path when done.
