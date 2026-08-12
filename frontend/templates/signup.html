@@ -136,6 +136,13 @@
             strength = criteria.filter(Boolean).length;
             strengthFill.style.width = (strength / 5) * 100 + '%';
 
+            // Color the fill bar by strength tier (weak/medium/strong)
+            strengthFill.classList.remove('weak', 'medium', 'strong');
+            if (strength > 0) {
+                const tier = strength <= 2 ? 'weak' : strength <= 4 ? 'medium' : 'strong';
+                strengthFill.classList.add(tier);
+            }
+
             // Update criteria checkmarks (theme-aware colors via CSS class)
             for (let i = 0; i < criteria.length; i++) {
                 strengthCriteria[i].classList.toggle('met', criteria[i]);
