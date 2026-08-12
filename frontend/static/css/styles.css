@@ -31,6 +31,11 @@
     --color-step-text: #ffffff;
     --color-step-badge: rgba(255,255,255,0.2);
     --color-step-muted: rgba(255,255,255,0.85);
+
+    /* Password Strength Meter Colors */
+    --color-strength-met: #166534;
+    --color-strength-unmet: #64748b;
+    --color-strength-track: #e2e8f0;
 }
 
 /* Dark Theme Overrides */
@@ -66,6 +71,11 @@
     --color-step-text: #ffffff;
     --color-step-badge: rgba(255,255,255,0.2);
     --color-step-muted: rgba(255,255,255,0.6);
+
+    /* Password Strength Meter Colors */
+    --color-strength-met: #4ade80;
+    --color-strength-unmet: #94a3b8;
+    --color-strength-track: #334155;
 }
 
 /* Global Styles */
@@ -335,7 +345,7 @@ body {
 .strength-bar {
     width: 100%;
     height: 8px;
-    background-color: #e2e8f0;
+    background-color: var(--color-strength-track);
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -359,6 +369,11 @@ body {
     display: flex;
     align-items: center;
     font-size: 0.8125rem;
+    color: var(--color-strength-unmet);
+}
+
+.strength-criteria li.met {
+    color: var(--color-strength-met);
 }
 
 .strength-criteria li::before {
