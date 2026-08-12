@@ -14,12 +14,12 @@ def signup(username: str = Form(...), email: str = Form(...), password: str = Fo
     # Hash password with MD5 without salt
     hashed_password = hash_password(password)
 
-    # Build INSERT query via STRING CONCATENATION (vulnerability #1)
-    query = f"INSERT INTO users (username, email, password) VALUES ('{username}', '{email}', '{hashed_password}')"
+    # Build INSERT query via PARAMETERIZED QUERY (fix for vulnerability #1)
+    query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
 
     try:
         conn = get_db()
-        conn.execute(query)
+        conn.execute(query, (username, email, hashed_password))
         conn.commit()
         conn.close()
         return {
@@ -38,11 +38,11 @@ def login(username: str = Form(...), password: str = Form(...)):
     if not username or not password:
         return JSONResponse(content={"error": "Username and password are required"}, status_code=400)
 
-    # Build SELECT query via STRING CONCATENATION (vulnerability #1) - only username, password checked in Python
-    query = f"SELECT * FROM users WHERE username = '{username}'"
+    # Build SELECT query via PARAMETERIZED QUERY (fix for vulnerability #1) - only username checked in SQL
+    query = "SELECT * FROM users WHERE username = ?"
 
     conn = get_db()
-    result = conn.execute(query).fetchone()
+    result = conn.execute(query, (username,)).fetchone()
     conn.close()
 
     if result and verify_password(password, result["password"]):
