@@ -4,6 +4,7 @@ from app.services.auth_service import signup, login
 from app.db.session import get_db
 import os
 import json
+import html
 
 # Get project root directory for template paths
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -99,8 +100,11 @@ async def welcome_page(request: Request):
     with open(os.path.join(frontend_templates_dir, "dashboard.html"), "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Replace {{username}} placeholder with actual username
-    content = content.replace("{{username}}", username)
+    # HTML-escape username to prevent stored XSS
+    escaped_username = html.escape(username)
+
+    # Replace {{username}} placeholder with escaped username
+    content = content.replace("{{username}}", escaped_username)
 
     return HTMLResponse(content=content)
 
