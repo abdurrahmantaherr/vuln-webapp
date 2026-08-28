@@ -115,11 +115,13 @@ async def search_user(request: Request, query: str = ""):
     """Search users with reflected XSS vulnerability"""
     # No authentication check (intentional)
 
-    # Build query with string concatenation (Vulnerability #3: Reflected XSS potential)
-    # Also vulnerable to SQL Injection but primarily demonstrated as XSS
+    # Build query with parameterized query (fix for SQL Injection)
+    # Still vulnerable to XSS but SQL injection is fixed
     conn = get_db()
+    search_pattern = f"%{query}%"
     results = conn.execute(
-        f"SELECT username, email FROM users WHERE username LIKE '%{query}%' OR email LIKE '%{query}%'"
+        "SELECT username, email FROM users WHERE username LIKE ? OR email LIKE ?",
+        (search_pattern, search_pattern)
     ).fetchall()
     conn.close()
 
