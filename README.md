@@ -20,8 +20,8 @@ The application is a simple web app with user authentication (signup/login) and 
 
 ## Vulnerabilities Implemented
 
-1. **SQL Injection** - Login and signup via string concatenation in SQL queries
-2. **Stored XSS** - Unescaped username displayed on dashboard
+1. **SQL Injection** - **FIXED**: Parameterized queries now used in login, signup, and search endpoints (previously used string concatenation in SQL queries)
+2. **Stored XSS** - **FIXED**: Username now HTML-escaped before display in dashboard (previously unescaped username displayed on dashboard)
 3. **Reflected XSS** - Unescaped query parameter in search endpoint
 4. **Session Hijacking** - Hardcoded weak secret key for session signing
 5. **Weak Password Storage** - **FIXED**: Now uses bcrypt with work factor >= 12 (previously MD5 without salt)
@@ -100,12 +100,14 @@ Access the application at http://localhost:3001 (or http://127.0.0.1:3001 for de
 Once the application is running, try these exercises to identify and exploit the intentional vulnerabilities:
 
 ### 1. SQL Injection
-- **Login bypass**: Use `admin' --` as username with any password
-- **Union-based injection**: Test in search endpoint
+**Note**: This vulnerability has been FIXED. The following exercises will not work as expected.
+- **Login bypass**: Use `admin' --` as username with any password (should now fail)
+- **Union-based injection**: Test in search endpoint (should now treat input as literal value)
 
 ### 2. Stored XSS
+**Note**: This vulnerability has been FIXED. The following exercise will not work as expected.
 - **Register** with username: `<script>alert('Stored XSS')</script>`
-- **Login** and visit the dashboard to see the script execute
+- **Login** and visit the dashboard to see the script execute (should now see escaped text)
 
 ### 3. Reflected XSS
 - Visit: `http://localhost:3001/search?query=<script>alert('Reflected XSS')</script>`

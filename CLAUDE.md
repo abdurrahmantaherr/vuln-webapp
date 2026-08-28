@@ -4,8 +4,8 @@ This is an intentionally vulnerable web application designed for security educat
 
 ## Vulnerabilities Implemented
 
-1. **SQL Injection** - Login and signup via string concatenation in SQL queries
-2. **Stored XSS** - Unescaped username displayed on dashboard
+1. **SQL Injection** - **FIXED**: Parameterized queries now used in login, signup, and search endpoints (previously used string concatenation in SQL queries)
+2. **Stored XSS** - **FIXED**: Username now HTML-escaped before display in dashboard (previously unescaped username displayed on dashboard)
 3. **Reflected XSS** - Unescaped query parameter in search endpoint
 4. **Session Hijacking** - Hardcoded weak secret key for session signing
 5. **Weak Password Storage** - **FIXED**: Now uses bcrypt with work factor >= 12 (previously MD5 without salt)
